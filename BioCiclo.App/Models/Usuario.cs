@@ -3,7 +3,7 @@
 namespace BioCiclo.App.Models
 {
     // Esta classe representa a tabela 'Usuario' do seu banco de dados
-    internal class Usuario
+    public class Usuario
     {
     // PK - identificador único
     public int ID_Usuario { get; set; }
