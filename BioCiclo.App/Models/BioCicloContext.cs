@@ -1,34 +1,45 @@
 ﻿using Microsoft.EntityFrameworkCore;
-namespace BioCiclo.App.Models
+using BioCiclo.App.Models;
+
+namespace BioCiclo.App.Data
 {
     public class BioCicloContext : DbContext
     {
-        // Define as tabelas do banco baseadas nas suas classes
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Agendamento> Agendamentos { get; set; }
         public DbSet<MaterialReciclavel> Materiais { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // String de conexão para o SQL Server
+            // Conexão com o seu SQL Express
             optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=BioCicloDB;Trusted_Connection=True;TrustServerCertificate=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configurações específicas baseadas no seu dicionário de dados
+            // 1. Mapeamento de Tabelas (Sincronizado com seu print)
+            modelBuilder.Entity<Usuario>().ToTable("Usuario");
+            modelBuilder.Entity<Agendamento>().ToTable("Agendamentos");
+            modelBuilder.Entity<MaterialReciclavel>().ToTable("Materiais");
 
-            // 1. Configura o Peso_Kg para DECIMAL(10,2) conforme o documento 
+            // 2. Mapeamento de Colunas de Ligação (Foreign Keys)
+            // Ajustado para os nomes reais do seu banco: FK_Usuario e FK_Material
+            modelBuilder.Entity<Agendamento>()
+                .HasOne(a => a.Usuario)
+                .WithMany()
+                .HasForeignKey("FK_Usuario");
+
+            modelBuilder.Entity<Agendamento>()
+                .HasOne(a => a.Material)
+                .WithMany()
+                .HasForeignKey("FK_Material");
+
+            // 3. Configuração para o campo de peso (Decimal)
             modelBuilder.Entity<Agendamento>()
                 .Property(a => a.Peso_Kg)
                 .HasColumnType("decimal(10,2)");
 
-            // 2. Garante que o Email seja Único conforme o documento 
-            modelBuilder.Entity<Usuario>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
-
-            // 3. Mapeia a hierarquia de Usuários (Tabela Única)
+            // 4. Configuração de Herança (Cliente e Cooperativa)
             modelBuilder.Entity<Usuario>()
                 .HasDiscriminator<string>("Tipo_Usuario")
                 .HasValue<Cliente>("Cliente")

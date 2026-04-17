@@ -19,5 +19,6 @@ namespace BioCiclo.App.Models
         // Chaves Estrangeiras (FK) do seu banco
         public int FK_Usuario { get; set; }
         public int FK_Material { get; set; }
+        public Cliente Usuario { get; internal set; }
     }
 }
